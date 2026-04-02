@@ -9,6 +9,7 @@ void (*const fire_string_scene_on_enter_handlers[])(void*) = {
     fire_string_scene_on_enter_step_two_menu,
     fire_string_scene_on_enter_loading_usb,
     fire_string_scene_on_enter_usb,
+    fire_string_scene_on_enter_bluetooth,
     fire_string_scene_on_enter_load_string,
     fire_string_scene_on_enter_save_string,
     fire_string_scene_on_enter_about,
@@ -22,6 +23,7 @@ bool (*const fire_string_scene_on_event_handlers[])(void*, SceneManagerEvent) = 
     fire_string_scene_on_event_step_two_menu,
     fire_string_scene_on_event_loading_usb,
     fire_string_scene_on_event_usb,
+    fire_string_scene_on_event_bluetooth,
     fire_string_scene_on_event_load_string,
     fire_string_scene_on_event_save_string,
     fire_string_scene_on_event_about,
@@ -35,6 +37,7 @@ void (*const fire_string_scene_on_exit_handlers[])(void*) = {
     fire_string_scene_on_exit_step_two_menu,
     fire_string_scene_on_exit_loading_usb,
     fire_string_scene_on_exit_usb,
+    fire_string_scene_on_exit_bluetooth,
     fire_string_scene_on_exit_load_string,
     fire_string_scene_on_exit_save_string,
     fire_string_scene_on_exit_about,
@@ -143,12 +146,15 @@ FireString* fire_string_init() {
     // Set HID defaults
     app->hid = malloc(sizeof(FireStringHID));
     app->hid->api = NULL;
-    app->hid->interface = BadUsbHidInterfaceUsb;
     app->hid->usb_if_prev = NULL;
     app->hid->hid_inst = NULL;
     // Set default keyboard layout
+    // TODO: Alternate keyboard layouts - lang assets are included at APP_ASSETS_PATH("layouts")
     memset(app->hid->layout, HID_KEYBOARD_NONE, sizeof(app->hid->layout));
     memcpy(app->hid->layout, hid_asciimap, MIN(sizeof(hid_asciimap), sizeof(app->hid->layout)));
+
+    // Init notifications app
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     // Init dictionary
     app->dict = malloc(sizeof(FireStringDictionary));
@@ -199,6 +205,9 @@ void fire_string_free(FireString* app) {
         furi_string_free(app->dict->char_list);
         app->dict->char_list = NULL;
     }
+
+    furi_record_close(RECORD_NOTIFICATION);
+    app->notifications = NULL;
 
     free(app->settings);
     free(app->hid);

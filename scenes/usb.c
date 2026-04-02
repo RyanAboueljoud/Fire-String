@@ -3,9 +3,6 @@
 
 static void usb_scene_builder(FireString* app);
 
-#define USB_ASCII_TO_KEY(script, x) \
-    (((uint8_t)x < 128) ? (script->hid->layout[(uint8_t)x]) : HID_KEYBOARD_NONE)
-
 #define SPAM_UNLOCK 5
 
 uint8_t right_btn_clk_cnt = 0;
@@ -19,7 +16,7 @@ bool ducky_string(FireString* app) {
     uint16_t keycode = HID_KEYBOARD_NONE;
     uint32_t i = 0;
     while(param[i] != '\0') {
-        keycode = USB_ASCII_TO_KEY(app, param[i]);
+        keycode = ASCII_TO_KEY(app, param[i]);
         if(keycode != HID_KEYBOARD_NONE) {
             app->hid->api->kb_press(app->hid->hid_inst, keycode);
             app->hid->api->kb_release(app->hid->hid_inst, keycode);
@@ -66,7 +63,7 @@ void usb_btn_callback(GuiButtonType result, InputType type, void* context) {
                 const char* param = get_rnd_word(app, false);
                 uint32_t i = 0;
                 while(param[i] != '\0') {
-                    keycode = USB_ASCII_TO_KEY(app, param[i]);
+                    keycode = ASCII_TO_KEY(app, param[i]);
                     if(keycode != HID_KEYBOARD_NONE) {
                         app->hid->api->kb_press(app->hid->hid_inst, keycode);
                         app->hid->api->kb_release(app->hid->hid_inst, keycode);
@@ -75,7 +72,7 @@ void usb_btn_callback(GuiButtonType result, InputType type, void* context) {
                 }
             } else {
                 char rnd_char = get_rnd_char(app, false);
-                keycode = USB_ASCII_TO_KEY(app, rnd_char);
+                keycode = ASCII_TO_KEY(app, rnd_char);
                 if(keycode != HID_KEYBOARD_NONE) {
                     app->hid->api->kb_press(app->hid->hid_inst, keycode);
                     app->hid->api->kb_release(app->hid->hid_inst, keycode);
