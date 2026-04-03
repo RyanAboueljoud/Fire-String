@@ -1,3 +1,7 @@
+## v2.0
+
+* Added Bluetooth export
+
 ## v1.3
 
 * Added animated icons to main menu
