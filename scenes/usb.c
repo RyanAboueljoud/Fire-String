@@ -88,17 +88,17 @@ static void usb_scene_builder(FireString* app) {
     widget_reset(app->widget);
 
     widget_add_icon_element(app->widget, 80, 20, &I_UsbTree_48x22);
-    widget_add_button_element(app->widget, GuiButtonTypeLeft, "Back", usb_btn_callback, app);
 
     if(app->hid->api->is_connected(app->hid->hid_inst)) {
         widget_add_string_element(
             app->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "Ready to send Fire String");
-        widget_add_icon_element(app->widget, 0, 20, &I_Connected_62x31);
         widget_add_button_element(app->widget, GuiButtonTypeCenter, "Send", usb_btn_callback, app);
         if(right_btn_clk_cnt < SPAM_UNLOCK) {
+            widget_add_icon_element(app->widget, 0, 20, &I_Connected_62x31);
             widget_add_icon_element(app->widget, 62, 22, &I_Smile_18x18);
             widget_add_button_element(app->widget, GuiButtonTypeRight, "", usb_btn_callback, app);
         } else {
+            widget_add_icon_element(app->widget, 0, 20, &I_WarningDolphin_45x42);
             widget_add_icon_element(app->widget, 62, 20, &I_EviSmile2_18x21);
             widget_add_button_element(
                 app->widget, GuiButtonTypeRight, "Spam", usb_btn_callback, app);
@@ -109,6 +109,7 @@ static void usb_scene_builder(FireString* app) {
         widget_add_icon_element(app->widget, 62, 22, &I_Error_18x18);
         widget_add_icon_element(app->widget, 0, 20, &I_Connect_me_62x31);
     }
+    widget_add_button_element(app->widget, GuiButtonTypeLeft, "Back", usb_btn_callback, app);
 }
 
 void fire_string_scene_on_enter_usb(void* context) {

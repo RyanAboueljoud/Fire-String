@@ -77,12 +77,11 @@ void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
                 bt_setup_complete = true;
                 bt_conn_scene_builder(app);
             }
-
             break;
         }
     }
 
-    if(bt_setup_complete && type == InputTypeRepeat && bt_right_btn_clk_cnt == SPAM_UNLOCK) {
+    if(bt_setup_complete && type == InputTypeRepeat && bt_right_btn_clk_cnt >= SPAM_UNLOCK) {
         if(app->hid->bt_connected) {
             uint16_t keycode = HID_KEYBOARD_NONE;
             if(app->settings->str_type == StrType_Passphrase) {
@@ -114,17 +113,16 @@ static void bt_conn_scene_builder(FireString* app) {
     widget_reset(app->widget);
 
     widget_add_icon_element(app->widget, 80, 20, &I_UsbTree_48x22);
-    widget_add_button_element(app->widget, GuiButtonTypeLeft, "Back", bt_btn_callback, app);
-
     if(app->hid->bt_connected) {
         widget_add_string_element(
             app->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "Ready to send Fire String");
-        widget_add_icon_element(app->widget, 0, 20, &I_Connected_62x31);
         widget_add_button_element(app->widget, GuiButtonTypeCenter, "Send", bt_btn_callback, app);
         if(bt_right_btn_clk_cnt < SPAM_UNLOCK) {
+            widget_add_icon_element(app->widget, 0, 20, &I_Connected_62x31);
             widget_add_icon_element(app->widget, 62, 22, &I_Smile_18x18);
             widget_add_button_element(app->widget, GuiButtonTypeRight, "", bt_btn_callback, app);
         } else {
+            widget_add_icon_element(app->widget, 0, 20, &I_WarningDolphin_45x42);
             widget_add_icon_element(app->widget, 62, 20, &I_EviSmile2_18x21);
             widget_add_button_element(
                 app->widget, GuiButtonTypeRight, "Spam", bt_btn_callback, app);
@@ -135,6 +133,7 @@ static void bt_conn_scene_builder(FireString* app) {
         widget_add_icon_element(app->widget, 62, 22, &I_Error_18x18);
         widget_add_icon_element(app->widget, 0, 20, &I_Connect_me_62x31);
     }
+    widget_add_button_element(app->widget, GuiButtonTypeLeft, "Back", bt_btn_callback, app);
 }
 
 static void bt_setup_scene_builder(FireString* app) {
