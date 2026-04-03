@@ -1,6 +1,7 @@
 ## v2.0
 
 * Added Bluetooth export
+* Enhanced Spam mode output speed
 
 ## v1.3
 

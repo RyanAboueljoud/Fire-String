@@ -5,6 +5,14 @@ static void bt_conn_scene_builder(FireString* app);
 
 #define SPAM_UNLOCK 5
 
+typedef enum {
+    WorkerEvtStartStop = (1 << 0),
+    // WorkerEvtPauseResume = (1 << 1),
+    // WorkerEvtEnd = (1 << 2),
+    // WorkerEvtConnect = (1 << 3),
+    // WorkerEvtDisconnect = (1 << 4),
+} WorkerEvtFlags;
+
 uint8_t bt_right_btn_clk_cnt = 0;
 bool bt_state = false;
 bool bt_setup_complete = false;
@@ -46,6 +54,42 @@ void bt_remove_pairing(FireString* app) {
     furi_hal_bt_start_advertising();
 }
 
+static int32_t spam_worker(void* context) {
+    FURI_LOG_I(TAG, "spam_worker");
+    furi_check(context);
+
+    FireString* app = context;
+
+    FURI_LOG_I(TAG, "spam_worker %p starting", furi_thread_get_id(app->thread));
+
+    while(furi_thread_flags_get() == 0 && app->hid->bt_connected) {
+        uint16_t keycode = HID_KEYBOARD_NONE;
+        if(app->settings->str_type == StrType_Passphrase) {
+            const char* param = get_rnd_word(app, false);
+            uint32_t i = 0;
+            while(param[i] != '\0') {
+                keycode = ASCII_TO_KEY(app, param[i]);
+                if(keycode != HID_KEYBOARD_NONE) {
+                    ble_profile_hid_kb_press(app->hid->ble_hid_profile, keycode);
+                    ble_profile_hid_kb_release(app->hid->ble_hid_profile, keycode);
+                }
+                i++;
+            }
+        } else {
+            char rnd_char = get_rnd_char(app, false);
+            keycode = ASCII_TO_KEY(app, rnd_char);
+            if(keycode != HID_KEYBOARD_NONE) {
+                ble_profile_hid_kb_press(app->hid->ble_hid_profile, keycode);
+                ble_profile_hid_kb_release(app->hid->ble_hid_profile, keycode);
+            }
+        }
+    }
+
+    FURI_LOG_I(TAG, "spam_worker %p ended", furi_thread_get_id(app->thread));
+
+    return 0;
+}
+
 void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
     FURI_LOG_T(TAG, "bt_btn_callback");
     furi_check(context);
@@ -58,9 +102,9 @@ void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
             if(!bt_setup_complete) {
                 bt_remove_pairing(app);
             } else {
+                notification_message(app->notifications, &sequence_single_vibro);
                 bt_ducky_string(app);
             }
-
             break;
         case GuiButtonTypeLeft:
             scene_manager_search_and_switch_to_previous_scene(
@@ -69,7 +113,9 @@ void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
         case GuiButtonTypeRight:
             if(bt_setup_complete && bt_right_btn_clk_cnt <= SPAM_UNLOCK) {
                 if(bt_right_btn_clk_cnt == SPAM_UNLOCK) {
-                    notification_message(app->notifications, &sequence_semi_success);
+                    notification_message(app->notifications, &sequence_audiovisual_alert);
+                    notification_message(app->notifications, &sequence_display_backlight_on);
+                    app->thread = furi_thread_alloc_ex("SpamWorker", 2048, spam_worker, app);
                     bt_conn_scene_builder(app);
                 }
                 bt_right_btn_clk_cnt++;
@@ -81,28 +127,14 @@ void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
         }
     }
 
-    if(bt_setup_complete && type == InputTypeRepeat && bt_right_btn_clk_cnt >= SPAM_UNLOCK) {
-        if(app->hid->bt_connected) {
-            uint16_t keycode = HID_KEYBOARD_NONE;
-            if(app->settings->str_type == StrType_Passphrase) {
-                const char* param = get_rnd_word(app, false);
-                uint32_t i = 0;
-                while(param[i] != '\0') {
-                    keycode = ASCII_TO_KEY(app, param[i]);
-                    if(keycode != HID_KEYBOARD_NONE) {
-                        ble_profile_hid_kb_press(app->hid->ble_hid_profile, keycode);
-                        ble_profile_hid_kb_release(app->hid->ble_hid_profile, keycode);
-                    }
-                    i++;
-                }
-            } else {
-                char rnd_char = get_rnd_char(app, false);
-                keycode = ASCII_TO_KEY(app, rnd_char);
-                if(keycode != HID_KEYBOARD_NONE) {
-                    ble_profile_hid_kb_press(app->hid->ble_hid_profile, keycode);
-                    ble_profile_hid_kb_release(app->hid->ble_hid_profile, keycode);
-                }
+    if(bt_setup_complete && bt_right_btn_clk_cnt > SPAM_UNLOCK) {
+        if(type == InputTypeRepeat && app->hid->bt_connected) {
+            if(furi_thread_get_state(app->thread) == FuriThreadStateStopped) {
+                furi_thread_start(app->thread);
             }
+        }
+        if(type == InputTypeRelease) {
+            furi_thread_flags_set(furi_thread_get_id(app->thread), WorkerEvtStartStop);
         }
     }
 }
@@ -174,7 +206,11 @@ static void bt_hid_connection_status_changed_callback(BtStatus status, void* con
     }
 
     if(conn_status_change) {
-        notification_message(app->notifications, &sequence_set_blue_255);
+        if(app->hid->bt_connected) {
+            notification_message(app->notifications, &sequence_set_blue_255);
+        } else {
+            notification_message(app->notifications, &sequence_reset_blue);
+        }
         notification_message(app->notifications, &sequence_single_vibro);
         if(!bt_setup_complete) {
             bt_setup_scene_builder(app);
@@ -258,8 +294,8 @@ void fire_string_scene_on_exit_bluetooth(void* context) {
 
     FireString* app = context;
 
-    bt_set_status_changed_callback(app->hid->bt, NULL, NULL);
     bt_disconnect(app->hid->bt);
+    bt_set_status_changed_callback(app->hid->bt, NULL, NULL);
 
     // Wait 2nd core to update nvm storage
     furi_delay_ms(200);
@@ -270,6 +306,12 @@ void fire_string_scene_on_exit_bluetooth(void* context) {
     furi_check(bt_profile_restore_default(app->hid->bt));
     furi_record_close(RECORD_BT);
     app->hid->bt = NULL;
+
+    if(app->thread != NULL) {
+        furi_thread_flags_set(app->thread, WorkerEvtStartStop);
+        furi_thread_free(app->thread);
+        app->thread = NULL;
+    }
 
     widget_reset(app->widget);
 }

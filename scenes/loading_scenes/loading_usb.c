@@ -19,6 +19,8 @@ static int32_t usb_worker(void* context) {
     app->hid->api = bad_usb_hid_get_interface(app->hid->interface);
     app->hid->hid_inst = app->hid->api->init(NULL);
 
+    furi_delay_ms(100); // Give USB HID time to settle
+
     FURI_LOG_I(TAG, "usb_worker %p ended", furi_thread_get_id(app->thread));
 
     return 0;
@@ -62,7 +64,6 @@ bool fire_string_scene_on_event_loading_usb(void* context, SceneManagerEvent eve
                 furi_thread_get_state(app->thread) == FuriThreadStateRunning ? "Running" :
                                                                                "Starting");
         }
-        furi_delay_tick(500); // Give USB HID time to settle
         break;
     case SceneManagerEventTypeBack:
         app->hid->api->deinit(app->hid->hid_inst);
