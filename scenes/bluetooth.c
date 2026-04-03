@@ -67,12 +67,12 @@ void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
                 app->scene_manager, FireStringScene_GenerateStepTwo);
             break;
         case GuiButtonTypeRight:
-            if(bt_setup_complete && bt_right_btn_clk_cnt < SPAM_UNLOCK) {
-                bt_right_btn_clk_cnt++;
+            if(bt_setup_complete && bt_right_btn_clk_cnt <= SPAM_UNLOCK) {
                 if(bt_right_btn_clk_cnt == SPAM_UNLOCK) {
                     notification_message(app->notifications, &sequence_semi_success);
                     bt_conn_scene_builder(app);
                 }
+                bt_right_btn_clk_cnt++;
             } else if(!bt_setup_complete) {
                 bt_setup_complete = true;
                 bt_conn_scene_builder(app);
