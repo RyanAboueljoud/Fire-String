@@ -49,7 +49,7 @@ void fire_string_scene_on_enter_step_two_menu(void* context) {
 
     submenu_add_item(
         app->submenu,
-        "Send through USB",
+        "USB Export",
         FireStringStepTwoSelection_USB,
         fire_string_menu_callback_step_two_menu,
         app);
