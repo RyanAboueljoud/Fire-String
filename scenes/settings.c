@@ -50,8 +50,10 @@ void settings_enter_callback(void* context, uint32_t index) {
 
     FireString* app = context;
 
-    if(scene_manager_search_and_switch_to_previous_scene(
-           app->scene_manager, FireStringScene_Generate)) {
+    if(app->settings->str_type == StrType_Passphrase && app->dict->word_list == NULL) {
+        scene_manager_next_scene(app->scene_manager, FireStringScene_Loading_Word_List);
+    } else if(scene_manager_search_and_switch_to_previous_scene(
+                  app->scene_manager, FireStringScene_Generate)) {
     } else {
         scene_manager_next_scene(app->scene_manager, FireStringScene_Generate);
     }
@@ -109,5 +111,20 @@ void fire_string_scene_on_exit_settings(void* context) {
     furi_check(context);
 
     FireString* app = context;
+
+    // clean dictionaries not in use
+    if(app->settings->str_type != StrType_Passphrase && app->dict->word_list != NULL) {
+        for(uint16_t i = 0; i < app->dict->len; i++) {
+            furi_string_free(app->dict->word_list[i]);
+            app->dict->word_list[i] = NULL;
+        }
+        free(app->dict->word_list);
+        app->dict->word_list = NULL;
+    }
+    if(app->settings->str_type == StrType_Passphrase && app->dict->char_list != NULL) {
+        furi_string_free(app->dict->char_list);
+        app->dict->char_list = NULL;
+    }
+
     variable_item_list_reset(app->variable_item_list);
 }

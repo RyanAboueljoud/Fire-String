@@ -27,6 +27,7 @@
 
 #define TAG                      "firestring-app"
 #define DEFAULT_PATH             APP_DATA_PATH()
+#define DICT_MAX_SIZE            1024
 #define FILE_EXT                 ".rnd"
 #define TEXT_INPUT_BUF_SIZE      24
 #define DICT_FILE                "eff_short_wordlist_1_alpha.txt"
@@ -104,7 +105,7 @@ typedef struct {
 typedef struct {
     FuriString* char_list;
     FuriString** word_list;
-    size_t len;
+    uint16_t len;
 } FireStringDictionary;
 
 // app context
