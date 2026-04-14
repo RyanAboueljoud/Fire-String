@@ -9,8 +9,8 @@
 
 void build_string_generator_widget(FireString* app);
 
-#define DEFAULT_DELAY          250
-#define TEXT_SCROLL_CHAR_LIMIT 256
+#define DEFAULT_DELAY          250 // arbitrary delay for string gen animation speed
+#define TEXT_SCROLL_CHAR_LIMIT 250 // limits text displayed in widget scroll element
 uint8_t delay_ms = DEFAULT_DELAY;
 uint16_t fire_string_len = -1;
 

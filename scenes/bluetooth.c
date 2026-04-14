@@ -91,7 +91,7 @@ static int32_t spam_worker(void* context) {
 }
 
 void bt_btn_callback(GuiButtonType result, InputType type, void* context) {
-    FURI_LOG_T(TAG, "bt_btn_callback");
+    // FURI_LOG_T(TAG, "bt_btn_callback");
     furi_check(context);
 
     FireString* app = context;

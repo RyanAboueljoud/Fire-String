@@ -27,7 +27,7 @@
 
 #define TAG                      "firestring-app"
 #define DEFAULT_PATH             APP_DATA_PATH()
-#define DICT_MAX_SIZE            1024
+#define DICT_MAX_SIZE            512
 #define STR_RESERVE_LEN          4096
 #define FILE_EXT                 ".rnd"
 #define TEXT_INPUT_BUF_SIZE      24
