@@ -1,16 +1,16 @@
 #include "../fire_string.h"
 #include "furi_hal_random.h"
 
-#define ALPH_ROWS          2
-#define NUMS_ROWS          1
-#define SYMB_ROWS          4
-#define BIN_ROWS           1
-#define COLS               2
-#define MAGIC_MAX_STR_SIZE 4096
+#define ALPH_ROWS 2
+#define NUMS_ROWS 1
+#define SYMB_ROWS 4
+#define BIN_ROWS  1
+#define COLS      2
 
 void build_string_generator_widget(FireString* app);
 
-#define DEFAULT_DELAY 250
+#define DEFAULT_DELAY          250
+#define TEXT_SCROLL_CHAR_LIMIT 256
 uint8_t delay_ms = DEFAULT_DELAY;
 uint16_t fire_string_len = -1;
 
@@ -117,6 +117,20 @@ void get_char_list(FireString* app) {
     }
 }
 
+static inline void string_builder(FireString* app, FuriString* str) {
+    if(fire_string_len < 1) {
+        furi_string_set(app->fire_string, str);
+    } else {
+        furi_string_push_back(app->fire_string, '-');
+
+        uint8_t str_len = furi_string_size(str);
+        for(uint8_t i = 0; i < str_len; i++) {
+            furi_string_push_back(app->fire_string, furi_string_get_char(str, i));
+        }
+    }
+    fire_string_len++;
+}
+
 void get_dict_len(FireString* app) {
     FURI_LOG_T(TAG, "get_dict_len");
 
@@ -173,19 +187,7 @@ const char* get_rnd_word(FireString* app, bool save) {
         rnd_buffer = furi_hal_random_get() & 0xFFF;
     }
     if(save) {
-        if(furi_string_size(app->fire_string) < 1) {
-            furi_string_set(app->fire_string, app->dict->word_list[rnd_buffer]);
-        } else {
-            furi_string_push_back(app->fire_string, '-');
-
-            uint16_t i = 0;
-            while(i < furi_string_size(app->dict->word_list[rnd_buffer])) {
-                furi_string_push_back(
-                    app->fire_string, furi_string_get_cstr(app->dict->word_list[rnd_buffer])[i]);
-                i++;
-            }
-        }
-        fire_string_len++;
+        string_builder(app, app->dict->word_list[rnd_buffer]);
     } else {
         return furi_string_get_cstr(app->dict->word_list[rnd_buffer]);
     }
@@ -247,7 +249,7 @@ void string_generator_btn_callback(GuiButtonType result, InputType type, void* c
             break;
         case GuiButtonTypeCenter:
             furi_string_reset(app->fire_string);
-            furi_string_reserve(app->fire_string, MAGIC_MAX_STR_SIZE);
+            furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
             fire_string_len = 0;
             delay_ms = DEFAULT_DELAY;
             app->settings->file_loaded = false;
@@ -272,13 +274,24 @@ void build_string_generator_widget(FireString* app) {
 
     widget_reset(app->widget);
 
-    widget_add_text_scroll_element( // BUG: Causing memory leaks/fragmentation when repeatedly called with long cstrings
-        app->widget,
-        0,
-        1,
-        128,
-        45,
-        furi_string_get_cstr(app->fire_string));
+    // Limit size of displayed string to avoid memory issues associated with widget_add_text_scroll_element()
+    if(furi_string_size(app->fire_string) > TEXT_SCROLL_CHAR_LIMIT) {
+        FuriString* short_fire_string = furi_string_alloc();
+
+        for(uint16_t i = 0; i < TEXT_SCROLL_CHAR_LIMIT - 3; i++) {
+            furi_string_push_back(short_fire_string, furi_string_get_char(app->fire_string, i));
+        }
+        furi_string_cat_str(short_fire_string, "...");
+
+        widget_add_text_scroll_element(
+            app->widget, 0, 1, 128, 45, furi_string_get_cstr(short_fire_string));
+
+        furi_string_free(short_fire_string);
+        short_fire_string = NULL;
+    } else {
+        widget_add_text_scroll_element(
+            app->widget, 0, 1, 128, 45, furi_string_get_cstr(app->fire_string));
+    }
 
     widget_add_button_element(
         app->widget, GuiButtonTypeLeft, "Config", string_generator_btn_callback, app);
@@ -322,18 +335,7 @@ static void ir_received_callback(void* context, InfraredWorkerSignal* signal) {
         uint32_t i = 0;
         if(app->settings->str_type == StrType_Passphrase) {
             while(fire_string_len < app->settings->str_len && i < timings_size) {
-                if(fire_string_len < 1) {
-                    furi_string_cat_printf(
-                        app->fire_string,
-                        "%s",
-                        furi_string_get_cstr(app->dict->word_list[timings[i] % app->dict->len]));
-                } else {
-                    furi_string_cat_printf(
-                        app->fire_string,
-                        "-%s",
-                        furi_string_get_cstr(app->dict->word_list[timings[i] % app->dict->len]));
-                }
-                fire_string_len = get_str_len(app);
+                string_builder(app, app->dict->word_list[timings[i] % app->dict->len]);
                 i++;
             }
         } else {
@@ -341,7 +343,7 @@ static void ir_received_callback(void* context, InfraredWorkerSignal* signal) {
                 furi_string_push_back(
                     app->fire_string,
                     furi_string_get_char(app->dict->char_list, timings[i] % app->dict->len));
-                fire_string_len = get_str_len(app);
+                fire_string_len++;
                 i++;
             }
         }
@@ -387,11 +389,10 @@ void fire_string_scene_on_enter_string_generator(void* context) {
     }
 
     if(app->fire_string == NULL) {
-        furi_string_reserve(app->fire_string, MAGIC_MAX_STR_SIZE);
+        furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     }
 
     fire_string_len = get_str_len(app);
-
     build_string_generator_widget(app);
 }
 

@@ -23,6 +23,7 @@ void str_type_change_callback(VariableItem* item) {
     variable_item_set_current_value_text(item, type_strings[index]);
     app->settings->str_type = index;
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     app->settings->file_loaded = false;
 }
 
@@ -32,6 +33,7 @@ void str_len_change_callback(VariableItem* item) {
     variable_item_set_current_value_text(item, str_len[index]);
     app->settings->str_len = atoi(str_len[index]);
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     app->settings->file_loaded = false;
 }
 
@@ -40,6 +42,7 @@ void use_ir_change_callback(VariableItem* item) {
     app->settings->use_ir = !app->settings->use_ir;
     variable_item_set_current_value_text(item, use_ir_strings[(uint8_t)app->settings->use_ir]);
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     app->settings->file_loaded = false;
 }
 
