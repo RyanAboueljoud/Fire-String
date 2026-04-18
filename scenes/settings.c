@@ -24,6 +24,10 @@ void str_type_change_callback(VariableItem* item) {
     app->settings->str_type = index;
     furi_string_reset(app->fire_string);
     furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
+    if(app->dict->char_list != NULL) {
+        furi_string_free(app->dict->char_list);
+        app->dict->char_list = NULL;
+    }
     app->settings->file_loaded = false;
 }
 

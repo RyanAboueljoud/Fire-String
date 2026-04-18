@@ -131,21 +131,6 @@ static inline void string_builder(FireString* app, FuriString* str) {
     fire_string_len++;
 }
 
-void get_dict_len(FireString* app) {
-    FURI_LOG_T(TAG, "get_dict_len");
-
-    app->dict->len = 0;
-    if(app->settings->str_type == StrType_Passphrase) {
-        size_t i = 0;
-        while(app->dict->word_list[i] != NULL && !furi_string_empty(app->dict->word_list[i])) {
-            i++;
-        }
-        app->dict->len = i;
-    } else {
-        app->dict->len = furi_string_size(app->dict->char_list);
-    }
-}
-
 // Get string length or word count if phrase is enabled
 static inline uint16_t get_str_len(FireString* app) {
     FURI_LOG_T(TAG, "get_str_len");
@@ -382,10 +367,7 @@ void fire_string_scene_on_enter_string_generator(void* context) {
 
     if(app->settings->str_type != StrType_Passphrase && app->dict->char_list == NULL) {
         get_char_list(app);
-    }
-
-    if(app->dict->char_list != NULL || app->dict->word_list != NULL) {
-        get_dict_len(app);
+        app->dict->len = furi_string_size(app->dict->char_list);
     }
 
     if(app->fire_string == NULL) {
