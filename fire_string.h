@@ -106,7 +106,7 @@ typedef struct {
 typedef struct {
     FuriString* char_list;
     FuriString** word_list;
-    uint16_t len;
+    size_t len;
 } FireStringDictionary;
 
 // app context
