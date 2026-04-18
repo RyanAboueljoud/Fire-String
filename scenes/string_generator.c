@@ -11,8 +11,9 @@ void build_string_generator_widget(FireString* app);
 
 #define DEFAULT_DELAY          250 // arbitrary delay for string gen animation speed
 #define TEXT_SCROLL_CHAR_LIMIT 250 // limits text displayed in widget scroll element
-uint8_t delay_ms = DEFAULT_DELAY;
-uint16_t fire_string_len = -1;
+#define ANIMATION_LEN_LIMIT    25 // limits how many characters are animated
+uint32_t delay_ms = DEFAULT_DELAY;
+uint16_t fire_string_len = 0;
 
 void get_char_list(FireString* app) {
     FURI_LOG_T(TAG, "get_char_list");
@@ -118,7 +119,7 @@ void get_char_list(FireString* app) {
 }
 
 static inline void string_builder(FireString* app, FuriString* str) {
-    if(fire_string_len < 1) {
+    if(fire_string_len == 0) {
         furi_string_set(app->fire_string, str);
     } else {
         furi_string_push_back(app->fire_string, '-');
@@ -177,7 +178,7 @@ const char* get_rnd_word(FireString* app, bool save) {
         return furi_string_get_cstr(app->dict->word_list[rnd_buffer]);
     }
 
-    return 0;
+    return NULL;
 }
 
 // get character using internal rng
@@ -199,7 +200,7 @@ char get_rnd_char(FireString* app, bool save) {
     } else {
         return furi_string_get_char(app->dict->char_list, rnd_byte);
     }
-    return 0;
+    return '\0';
 }
 
 // use internal rng to generate fire_string of app->settings->str_len
@@ -255,17 +256,15 @@ void build_string_generator_widget(FireString* app) {
     FURI_LOG_T(TAG, "build_string_generator_widget");
 
     FuriString* progress = furi_string_alloc();
-    furi_string_printf(progress, "%d/%ld", fire_string_len, app->settings->str_len);
+    furi_string_printf(progress, "%u/%lu", fire_string_len, app->settings->str_len);
 
     widget_reset(app->widget);
 
     // Limit size of displayed string to avoid memory issues associated with widget_add_text_scroll_element()
     if(furi_string_size(app->fire_string) > TEXT_SCROLL_CHAR_LIMIT) {
         FuriString* short_fire_string = furi_string_alloc();
-
-        for(uint16_t i = 0; i < TEXT_SCROLL_CHAR_LIMIT - 3; i++) {
-            furi_string_push_back(short_fire_string, furi_string_get_char(app->fire_string, i));
-        }
+        furi_string_set_strn(
+            short_fire_string, furi_string_get_cstr(app->fire_string), TEXT_SCROLL_CHAR_LIMIT);
         furi_string_cat_str(short_fire_string, "...");
 
         widget_add_text_scroll_element(
@@ -362,15 +361,19 @@ void fire_string_scene_on_enter_string_generator(void* context) {
     furi_check(context);
 
     FireString* app = context;
+    delay_ms = DEFAULT_DELAY;
 
     view_dispatcher_switch_to_view(app->view_dispatcher, FireStringView_Widget);
 
-    if(app->settings->str_type != StrType_Passphrase && app->dict->char_list == NULL) {
-        get_char_list(app);
+    if(app->settings->str_type != StrType_Passphrase) {
+        if(app->dict->char_list == NULL) {
+            get_char_list(app);
+        }
         app->dict->len = furi_string_size(app->dict->char_list);
     }
 
     if(app->fire_string == NULL) {
+        app->fire_string = furi_string_alloc();
         furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     }
 
@@ -405,7 +408,7 @@ bool fire_string_scene_on_event_string_generator(void* context, SceneManagerEven
         // animate automatic string generation
         if(fire_string_len < app->settings->str_len && !app->settings->use_ir &&
            app->settings->file_loaded == false) {
-            if(fire_string_len > 30) { // arbitrarily skip animation at certain length
+            if(fire_string_len > ANIMATION_LEN_LIMIT) {
                 get_random_str(app);
             } else {
                 if(app->settings->str_type == StrType_Passphrase) {
@@ -415,7 +418,7 @@ bool fire_string_scene_on_event_string_generator(void* context, SceneManagerEven
                 }
                 furi_delay_ms(delay_ms);
                 if(delay_ms > 1) {
-                    delay_ms /= 1.5;
+                    delay_ms = (uint32_t)(delay_ms * 2 / 3);
                 } else {
                     delay_ms = 0;
                 }
