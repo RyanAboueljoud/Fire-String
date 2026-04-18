@@ -23,6 +23,11 @@ void str_type_change_callback(VariableItem* item) {
     variable_item_set_current_value_text(item, type_strings[index]);
     app->settings->str_type = index;
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
+    if(app->dict->char_list != NULL) {
+        furi_string_free(app->dict->char_list);
+        app->dict->char_list = NULL;
+    }
     app->settings->file_loaded = false;
 }
 
@@ -32,6 +37,7 @@ void str_len_change_callback(VariableItem* item) {
     variable_item_set_current_value_text(item, str_len[index]);
     app->settings->str_len = atoi(str_len[index]);
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     app->settings->file_loaded = false;
 }
 
@@ -40,6 +46,7 @@ void use_ir_change_callback(VariableItem* item) {
     app->settings->use_ir = !app->settings->use_ir;
     variable_item_set_current_value_text(item, use_ir_strings[(uint8_t)app->settings->use_ir]);
     furi_string_reset(app->fire_string);
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     app->settings->file_loaded = false;
 }
 
@@ -50,8 +57,10 @@ void settings_enter_callback(void* context, uint32_t index) {
 
     FireString* app = context;
 
-    if(scene_manager_search_and_switch_to_previous_scene(
-           app->scene_manager, FireStringScene_Generate)) {
+    if(app->settings->str_type == StrType_Passphrase && app->dict->word_list == NULL) {
+        scene_manager_next_scene(app->scene_manager, FireStringScene_Loading_Word_List);
+    } else if(scene_manager_search_and_switch_to_previous_scene(
+                  app->scene_manager, FireStringScene_Generate)) {
     } else {
         scene_manager_next_scene(app->scene_manager, FireStringScene_Generate);
     }
@@ -109,5 +118,20 @@ void fire_string_scene_on_exit_settings(void* context) {
     furi_check(context);
 
     FireString* app = context;
+
+    // clean dictionaries not in use
+    if(app->settings->str_type != StrType_Passphrase && app->dict->word_list != NULL) {
+        for(uint16_t i = 0; i < app->dict->len; i++) {
+            furi_string_free(app->dict->word_list[i]);
+            app->dict->word_list[i] = NULL;
+        }
+        free(app->dict->word_list);
+        app->dict->word_list = NULL;
+    }
+    if(app->settings->str_type == StrType_Passphrase && app->dict->char_list != NULL) {
+        furi_string_free(app->dict->char_list);
+        app->dict->char_list = NULL;
+    }
+
     variable_item_list_reset(app->variable_item_list);
 }

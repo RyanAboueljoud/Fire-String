@@ -163,6 +163,7 @@ FireString* fire_string_init() {
     app->dict->len = 0;
 
     app->fire_string = furi_string_alloc();
+    furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
 
     fire_string_scene_manager_init(app);
     fire_string_view_dispatcher_init(app);
@@ -184,19 +185,26 @@ void fire_string_free(FireString* app) {
     view_dispatcher_remove_view(app->view_dispatcher, FireStringView_TextInput);
 
     view_dispatcher_free(app->view_dispatcher);
+    app->view_dispatcher = NULL;
     menu_free(app->menu);
+    app->menu = NULL;
     submenu_free(app->submenu);
+    app->submenu = NULL;
     variable_item_list_free(app->variable_item_list);
+    app->variable_item_list = NULL;
     widget_free(app->widget);
+    app->widget = NULL;
     loading_free(app->loading);
+    app->loading = NULL;
     furi_string_free(app->fire_string);
+    app->fire_string = NULL;
     text_input_free(app->text_input);
+    app->text_input = NULL;
 
     if(app->dict->word_list != NULL) {
-        uint32_t i = 0;
-        while(app->dict->word_list[i] != NULL && !furi_string_empty(app->dict->word_list[i])) {
+        for(uint16_t i = 0; i < app->dict->len; i++) {
             furi_string_free(app->dict->word_list[i]);
-            i++;
+            app->dict->word_list[i] = NULL;
         }
         free(app->dict->word_list);
         app->dict->word_list = NULL;
@@ -210,9 +218,13 @@ void fire_string_free(FireString* app) {
     app->notifications = NULL;
 
     free(app->settings);
+    app->settings = NULL;
     free(app->hid);
+    app->hid = NULL;
     free(app->dict);
+    app->dict = NULL;
     free(app);
+    app = NULL;
 }
 
 /** go to trace log level in dev environment */
