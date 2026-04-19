@@ -70,6 +70,7 @@ typedef enum {
     FireStringEvent_ShowBadUSB,
     FireStringEvent_ShowFileBrowser,
     FireStringEvent_ShowSaved,
+    FireStringCustomEvent_SaveDone,
     FireStringEvent_ShowAbout,
     FireStringEvent_Exit
 } FireStringEvent;
