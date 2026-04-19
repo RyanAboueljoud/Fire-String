@@ -144,7 +144,7 @@ static void bt_conn_scene_builder(FireString* app) {
 
     widget_reset(app->widget);
 
-    widget_add_icon_element(app->widget, 80, 20, &I_UsbTree_48x22);
+    widget_add_icon_element(app->widget, 80, 20, &I_Bad_BLE_48x22);
     if(app->hid->bt_connected) {
         widget_add_string_element(
             app->widget, 0, 0, AlignLeft, AlignTop, FontPrimary, "Ready to send Fire String");
@@ -176,7 +176,7 @@ static void bt_setup_scene_builder(FireString* app) {
     const char* title_str = (app->hid->bt_connected) ? "Connected!" : "Pairing...";
 
     widget_add_string_element(app->widget, 65, 0, AlignLeft, AlignTop, FontPrimary, title_str);
-    widget_add_icon_element(app->widget, 80, 20, &I_UsbTree_48x22);
+    widget_add_icon_element(app->widget, 80, 20, &I_Bad_BLE_48x22);
 
     if(app->hid->bt_connected) {
         widget_add_icon_element(app->widget, 63, 24, &I_Ble_connected_15x15);
