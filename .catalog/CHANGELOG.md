@@ -1,8 +1,10 @@
 ## v2.0
 
 * Added Bluetooth export
-* Enhanced Spam mode output speed
+* Added hexadecimal string type
+* Enhanced spam mode output speed
 * Memory and performance optimizations
+* Bug fixes
 
 ## v1.3
 
