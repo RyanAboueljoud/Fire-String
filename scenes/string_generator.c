@@ -4,6 +4,7 @@
 #define ALPH_ROWS 2
 #define NUMS_ROWS 1
 #define SYMB_ROWS 4
+#define HEX_ROWS  2
 #define BIN_ROWS  1
 #define COLS      2
 
@@ -46,6 +47,11 @@ static void get_char_list(FireString* app) {
         {123, 126} // Opening Curly Brace to Tilde ({ to ~)
     };
 
+    // Hex: 0-9 (48-57) A-F (65-70)
+    const uint8_t hex_range[HEX_ROWS][COLS] = {
+        {48, 57}, // Zero to Nine (0 to 9)
+        {65, 70}}; // Uppercase A-F
+
     // Binary: (48-49)
     const uint8_t binary_range[BIN_ROWS][COLS] = {
         {48, 49} // Zero to One (0 to 1)
@@ -84,6 +90,11 @@ static void get_char_list(FireString* app) {
     case(StrType_Num):
         for(uint8_t i = 0; i < NUMS_ROWS; i++)
             for(uint8_t j = numbers_ranges[i][0]; j <= numbers_ranges[i][COLS - 1]; j++)
+                furi_string_push_back(app->dict->char_list, (char)j);
+        break;
+    case(StrType_Hex):
+        for(uint8_t i = 0; i < HEX_ROWS; i++)
+            for(uint8_t j = hex_range[i][0]; j <= hex_range[i][COLS - 1]; j++)
                 furi_string_push_back(app->dict->char_list, (char)j);
         break;
     case(StrType_Bin):

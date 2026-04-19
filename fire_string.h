@@ -81,6 +81,7 @@ typedef enum {
     StrType_Alpha,
     StrType_Symb,
     StrType_Num,
+    StrType_Hex,
     StrType_Bin,
 } StrType;
 

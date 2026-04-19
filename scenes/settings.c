@@ -3,7 +3,7 @@
 const char* str_len[] =
     {"1", "2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "256", "512", "1024"};
 const char* type_strings[] =
-    {"AlpNumSym", "Words", "AlphNum", "Alpha", "Symbols", "Numeric", "Binary"};
+    {"AlpNumSym", "Words", "AlphNum", "Alpha", "Symbols", "Numeric", "Hex", "Binary"};
 const char* use_ir_strings[] = {"False", "True"};
 const char* word_delimiter[] = {"-", "+", ",", ";", "/", "|", "Space"};
 

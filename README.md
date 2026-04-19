@@ -45,6 +45,7 @@ The Fire String generator uses the IR sensor to detect unpredictable infrared no
 * Alphabetic
 * Symbols
 * Numeric
+* Hexadecimal
 * Binary
 
 ## ⚠️ Disclaimer
