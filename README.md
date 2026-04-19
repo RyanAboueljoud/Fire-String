@@ -12,13 +12,16 @@ Available now on the [Flipper Lab App Store](https://lab.flipper.net/apps/fire_s
 | Settings | String Export |
 | ![Settings](.catalog/screens/screen2.png "Settings")  | ![String Export](.catalog/screens/screen3.png "String Export") |
 
+<p align="center">
+  <img src=".catalog/screens/FireString.gif" alt="Fire String Demo">
+</p>
 
 ## Features
 
 * **IR Sensor Input**: Use the IR sensor to capture unpredictable randomness (e.g., lighter ignition).
 * **Fallback Randomness**: Toggle off the IR sensor, relying on the Flipper Zero’s internal entropy sources.
 * **Internal Storage**: Save your favorite strings to internal storage and retrieve them later for reuse.
-* **USB Output**: Export generated strings directly to any external device that supports USB HID input.
+* **USB and Bluetooth Export**: Export generated strings directly to any external device that supports USB or Bluetooth HID input.
 
 ## How It Works
 
@@ -37,7 +40,7 @@ The Fire String generator uses the IR sensor to detect unpredictable infrared no
 ## Supported Character Sets
 
 * Alphabetic, Numeric and Symbols
-* Phrases
+* Words
 * Alphabetic and Numeric
 * Alphabetic
 * Symbols
@@ -52,7 +55,6 @@ While suitable for casual use, avoid using generated strings for secure cryptogr
 
 ## ❓ Features to consider:
 
-* Send Fire String using Bluetooth HID
 * Use raw subghz noise as entropy
 * Send Fire String using various other wireless capabilities (for fun?) e.g. NFC, RFID, subghz, infrared
 
@@ -72,4 +74,3 @@ While suitable for casual use, avoid using generated strings for secure cryptogr
 
 
 And all the wonderful and helpful people on the Flipper Zero [Discord Server](https://flipperzero.one/discord) 
-
