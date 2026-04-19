@@ -10,11 +10,13 @@ Available now on the [Flipper Lab App Store](https://lab.flipper.net/apps/fire_s
   <img src=".catalog/screens/FireString.gif" alt="Fire String Demo">
 </p>
 
-| Main Menu | String Generation | 
+| Main Menu | Fire String Generation | 
 | :---:  | :----: |
-| ![Main Menu](.catalog/screens/screen0.png "Main Menu") | ![String Generation](.catalog/screens/screen1.png "String Generation")  |
-| Settings | String Export |
-| ![Settings](.catalog/screens/screen2.png "Settings")  | ![String Export](.catalog/screens/screen3.png "String Export") |
+| ![Main Menu](.catalog/screens/screen0.png "Main Menu") | ![Fire String Generation](.catalog/screens/screen1.png "String Generation")  |
+| Settings | Fire String Export |
+| ![Settings](.catalog/screens/screen2.png "Settings")  | ![Fire String Export](.catalog/screens/screen3.png "Fire String Export") |
+| Bluetooth Pairing | Ready to Send |
+| ![Bluetooth Pairing](.catalog/screens/screen4.png "Bluetooth Pairing")  | ![Ready to Send](.catalog/screens/screen5.png "Ready to Send") |
 
 ## Features
 
