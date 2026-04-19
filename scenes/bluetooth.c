@@ -64,7 +64,7 @@ static int32_t spam_worker(void* context) {
 
     while(furi_thread_flags_get() == 0 && app->hid->bt_connected) {
         uint16_t keycode = HID_KEYBOARD_NONE;
-        if(app->settings->str_type == StrType_Passphrase) {
+        if(app->settings->str_type == StrType_Words) {
             const char* param = get_rnd_word(app, false);
             uint32_t i = 0;
             while(param[i] != '\0') {

@@ -76,7 +76,7 @@ typedef enum {
 
 typedef enum {
     StrType_AlphaNumSymb,
-    StrType_Passphrase,
+    StrType_Words,
     StrType_AlphaNum,
     StrType_Alpha,
     StrType_Symb,

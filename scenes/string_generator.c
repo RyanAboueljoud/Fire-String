@@ -114,11 +114,11 @@ static inline void string_builder(FireString* app, FuriString* str) {
 
 // -- String length -----------------------------------------------------------
 
-// Returns character count, or word count for passphrases
+// Returns character count, or word count for word lists
 static inline size_t get_str_len(FireString* app) {
     FURI_LOG_T(TAG, "get_str_len");
 
-    if(app->settings->str_type == StrType_Passphrase) {
+    if(app->settings->str_type == StrType_Words) {
         size_t string_size = furi_string_size(app->fire_string);
         if(string_size == 0) return 0;
 
@@ -183,10 +183,10 @@ static void get_random_str(FireString* app) {
     FURI_LOG_T(TAG, "get_random_str");
 
     uint16_t remaining = app->settings->str_len - fire_string_len;
-    bool is_passphrase = app->settings->str_type == StrType_Passphrase;
+    bool is_wordlist = app->settings->str_type == StrType_Words;
 
     for(uint16_t i = 0; i < remaining; i++) {
-        if(is_passphrase) {
+        if(is_wordlist) {
             get_rnd_word(app, true);
         } else {
             get_rnd_char(app, true);
@@ -284,12 +284,12 @@ static void ir_received_callback(void* context, InfraredWorkerSignal* signal) {
     size_t timings_size;
     infrared_worker_get_raw_signal(signal, &timings, &timings_size);
 
-    bool is_passphrase = app->settings->str_type == StrType_Passphrase;
+    bool is_wordlist = app->settings->str_type == StrType_Words;
     size_t i = 0;
 
     while(fire_string_len < app->settings->str_len && i < timings_size) {
         uint32_t index = timings[i] % app->dict->len;
-        if(is_passphrase) {
+        if(is_wordlist) {
             string_builder(app, app->dict->word_list[index]);
         } else {
             furi_string_push_back(
@@ -332,7 +332,7 @@ void fire_string_scene_on_enter_string_generator(void* context) {
 
     view_dispatcher_switch_to_view(app->view_dispatcher, FireStringView_Widget);
 
-    if(app->settings->str_type != StrType_Passphrase) {
+    if(app->settings->str_type != StrType_Words) {
         if(app->dict->char_list == NULL) {
             get_char_list(app);
         }
@@ -409,7 +409,7 @@ bool fire_string_scene_on_event_string_generator(void* context, SceneManagerEven
                 get_random_str(app);
             } else {
                 // Animated phase: one token per tick with exponentially decaying delay
-                if(app->settings->str_type == StrType_Passphrase) {
+                if(app->settings->str_type == StrType_Words) {
                     get_rnd_word(app, true);
                 } else {
                     get_rnd_char(app, true);

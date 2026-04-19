@@ -76,7 +76,7 @@ bool fire_string_scene_on_event_main_menu(void* context, SceneManagerEvent event
     case SceneManagerEventTypeCustom:
         switch(event.event) {
         case FireStringEvent_ShowStringGeneratorView:
-            if(app->settings->str_type == StrType_Passphrase && app->dict->word_list == NULL) {
+            if(app->settings->str_type == StrType_Words && app->dict->word_list == NULL) {
                 scene_manager_next_scene(app->scene_manager, FireStringScene_Loading_Word_List);
             } else {
                 scene_manager_next_scene(app->scene_manager, FireStringScene_Generate);

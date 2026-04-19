@@ -3,7 +3,7 @@
 const char* str_len[] =
     {"1", "2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "256", "512", "1024"};
 const char* type_strings[] =
-    {"AlphNumSymb", "Phrase", "AlphNum", "Alpha", "Symbols", "Numeric", "Binary"};
+    {"AlpNumSym", "Words", "AlphNum", "Alpha", "Symbols", "Numeric", "Binary"};
 const char* use_ir_strings[] = {"False", "True"};
 const char* word_delimiter[] = {"-", "+", ",", ";", "/", "|", "Space"};
 
@@ -56,7 +56,7 @@ void delimiter_change_callback(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
     variable_item_set_current_value_text(item, word_delimiter[index]);
     app->settings->delimiter = index;
-    if(app->settings->str_type == StrType_Passphrase) {
+    if(app->settings->str_type == StrType_Words) {
         furi_string_reset(app->fire_string);
         furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
     }
@@ -70,7 +70,7 @@ void settings_enter_callback(void* context, uint32_t index) {
 
     FireString* app = context;
 
-    if(app->settings->str_type == StrType_Passphrase && app->dict->word_list == NULL) {
+    if(app->settings->str_type == StrType_Words && app->dict->word_list == NULL) {
         scene_manager_next_scene(app->scene_manager, FireStringScene_Loading_Word_List);
     } else if(scene_manager_search_and_switch_to_previous_scene(
                   app->scene_manager, FireStringScene_Generate)) {
@@ -142,7 +142,7 @@ void fire_string_scene_on_exit_settings(void* context) {
     FireString* app = context;
 
     // clean dictionaries not in use
-    if(app->settings->str_type != StrType_Passphrase && app->dict->word_list != NULL) {
+    if(app->settings->str_type != StrType_Words && app->dict->word_list != NULL) {
         for(uint16_t i = 0; i < app->dict->len; i++) {
             furi_string_free(app->dict->word_list[i]);
             app->dict->word_list[i] = NULL;
@@ -150,7 +150,7 @@ void fire_string_scene_on_exit_settings(void* context) {
         free(app->dict->word_list);
         app->dict->word_list = NULL;
     }
-    if(app->settings->str_type == StrType_Passphrase && app->dict->char_list != NULL) {
+    if(app->settings->str_type == StrType_Words && app->dict->char_list != NULL) {
         furi_string_free(app->dict->char_list);
         app->dict->char_list = NULL;
     }
