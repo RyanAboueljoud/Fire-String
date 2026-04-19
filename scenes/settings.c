@@ -5,6 +5,7 @@ const char* str_len[] =
 const char* type_strings[] =
     {"AlphNumSymb", "Phrase", "AlphNum", "Alpha", "Symbols", "Numeric", "Binary"};
 const char* use_ir_strings[] = {"False", "True"};
+const char* word_delimiter[] = {"-", "+", ",", ";", "/", "|", "Space"};
 
 uint8_t get_str_len_index(uint32_t num) {
     uint8_t index = 0;
@@ -50,6 +51,18 @@ void use_ir_change_callback(VariableItem* item) {
     app->settings->file_loaded = false;
 }
 
+void delimiter_change_callback(VariableItem* item) {
+    FireString* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, word_delimiter[index]);
+    app->settings->delimiter = index;
+    if(app->settings->str_type == StrType_Passphrase) {
+        furi_string_reset(app->fire_string);
+        furi_string_reserve(app->fire_string, STR_RESERVE_LEN);
+    }
+    app->settings->file_loaded = false;
+}
+
 void settings_enter_callback(void* context, uint32_t index) {
     FURI_LOG_T(TAG, "settings_enter_callback");
     UNUSED(index);
@@ -92,6 +105,15 @@ void fire_string_scene_on_enter_settings(void* context) {
         app->variable_item_list, "Use IR", COUNT_OF(use_ir_strings), use_ir_change_callback, app);
     variable_item_set_current_value_index(use_ir, (uint8_t)app->settings->use_ir);
     variable_item_set_current_value_text(use_ir, use_ir_strings[(uint8_t)app->settings->use_ir]);
+
+    VariableItem* delimiter = variable_item_list_add(
+        app->variable_item_list,
+        "Word Delimiter",
+        COUNT_OF(word_delimiter),
+        delimiter_change_callback,
+        app);
+    variable_item_set_current_value_index(delimiter, app->settings->delimiter);
+    variable_item_set_current_value_text(delimiter, word_delimiter[app->settings->delimiter]);
 
     variable_item_list_set_enter_callback(app->variable_item_list, settings_enter_callback, app);
 

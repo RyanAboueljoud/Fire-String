@@ -84,10 +84,21 @@ typedef enum {
     StrType_Bin,
 } StrType;
 
+typedef enum {
+    DelimType_Dash,
+    DelimType_Plus,
+    DelimType_Comma,
+    DelimType_SemiColon,
+    DelimType_ForwardSlash,
+    DelimType_VerticalBar,
+    DelimType_Space,
+} DelimType;
+
 // app settings
 typedef struct {
     uint32_t str_len;
     uint8_t str_type;
+    uint8_t delimiter;
     bool use_ir;
     bool file_loaded;
 } FireStringSettings;

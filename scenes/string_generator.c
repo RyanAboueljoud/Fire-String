@@ -14,6 +14,7 @@ void build_string_generator_widget(FireString* app);
 #define ANIMATION_LEN_LIMIT    25 // limits how many characters are animated
 static uint32_t delay_ms = DEFAULT_DELAY;
 static uint16_t fire_string_len = 0;
+static char word_delimiter = '-';
 
 // -- Character list builder --------------------------------------------------
 
@@ -99,7 +100,7 @@ static inline void string_builder(FireString* app, FuriString* str) {
     if(fire_string_len == 0) {
         furi_string_set(app->fire_string, str);
     } else {
-        furi_string_push_back(app->fire_string, '-');
+        furi_string_push_back(app->fire_string, word_delimiter);
 
         // char-by-char append is intentional: furi_string_cat causes performance
         // degradation when called consecutively and rapidly on large strings.
@@ -123,7 +124,7 @@ static inline size_t get_str_len(FireString* app) {
 
         size_t word_count = 1;
         for(size_t i = 0; i < string_size; i++) {
-            if(furi_string_get_char(app->fire_string, i) == '-') word_count++;
+            if(furi_string_get_char(app->fire_string, i) == word_delimiter) word_count++;
         }
         return word_count;
     }
@@ -336,6 +337,32 @@ void fire_string_scene_on_enter_string_generator(void* context) {
             get_char_list(app);
         }
         app->dict->len = furi_string_size(app->dict->char_list);
+    } else { // set word delimiter
+        switch(app->settings->delimiter) {
+        case DelimType_Dash:
+            word_delimiter = '-';
+            break;
+        case DelimType_Plus:
+            word_delimiter = '+';
+            break;
+        case DelimType_Comma:
+            word_delimiter = ',';
+            break;
+        case DelimType_SemiColon:
+            word_delimiter = ';';
+            break;
+        case DelimType_ForwardSlash:
+            word_delimiter = '/';
+            break;
+        case DelimType_VerticalBar:
+            word_delimiter = '|';
+            break;
+        case DelimType_Space:
+            word_delimiter = ' ';
+            break;
+        default:
+            word_delimiter = '-';
+        }
     }
 
     if(app->fire_string == NULL) {
