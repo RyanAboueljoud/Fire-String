@@ -6,15 +6,15 @@ Inspired by [Flipper, Fire, RNG!](https://github.com/dipdowel/flipper-fire-rng) 
 
 Available now on the [Flipper Lab App Store](https://lab.flipper.net/apps/fire_string)
 
+<p align="center">
+  <img src=".catalog/screens/FireString.gif" alt="Fire String Demo">
+</p>
+
 | Main Menu | String Generation | 
 | :---:  | :----: |
 | ![Main Menu](.catalog/screens/screen0.png "Main Menu") | ![String Generation](.catalog/screens/screen1.png "String Generation")  |
 | Settings | String Export |
 | ![Settings](.catalog/screens/screen2.png "Settings")  | ![String Export](.catalog/screens/screen3.png "String Export") |
-
-<p align="center">
-  <img src=".catalog/screens/FireString.gif" alt="Fire String Demo">
-</p>
 
 ## Features
 
